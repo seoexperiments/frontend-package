@@ -18,14 +18,14 @@ The package will:
 @seoexperiments/frontend-package is an npm package and can be installed in many different ways. The easiest though is through npm 
 
 ```sh
-$ npm install @seoexperiments/frontend-package
+$ npm install @seoexperiments/frontend-package --save
 ```
 
 ### Usage
 Pull the package into the area of your codebase that has the logic you want to test. 
 The following example is a noindex experiment. The SEO Experiment will change the output of the function shouldPageBeNoindexed, as we want to noindex pages based upon the experiment cohort.
 ```js
-import SEOExperiment from 'seoexperiments'
+import SEOExperiment from '@seoexperiments/frontend-package'
 
 export const shouldPageBeNoindexed = async () => {
     const noindexExperiment = new SEOExperiment({

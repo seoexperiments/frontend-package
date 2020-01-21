@@ -26,6 +26,6 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3"
   },
   "dependencies": {
-    "knex": "^0.20.8"
+    "axios": "^0.19.1"
   }
 }
