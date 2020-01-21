@@ -1,6 +1,6 @@
 {
   "name": "@seoexperiments/frontend-package",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "The frontend-package allows for easy access of your seoexperiment.io experiment cohort using JavaScript!",
   "main": "index.js",
   "scripts": {
