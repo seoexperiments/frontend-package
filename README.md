@@ -8,7 +8,7 @@
 The frontend-package allows for easy access of your seoexperiment.io experiment cohort using JavaScript!
 
 The package will:
-  1.  Make a call to seoexperiments servers 
+  1. Make a call to seoexperiments servers 
   2. Get the cohort that the current page being loaded is in 
   3. Return that cohort to you
 
@@ -49,6 +49,16 @@ Want to contribute? Great!
 If you find a bug, please open an issue on github and feel free to make a pull request.
 https://github.com/seoexperiments/frontend-package
 
+Setup:
+  1. Clone repo from https://github.com/seoexperiments/frontend-package
+  2. npm install
+  3. Make changes to index_source.js
+  4. 'npm run build' to run babel and output new build to index.js
+
+Deploy:
+  1. git tag with new version
+  2. bump version in package.json
+  3. 'npm publish --access public'
 License
 ----
 

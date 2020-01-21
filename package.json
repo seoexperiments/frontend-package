@@ -1,0 +1,31 @@
+{
+  "name": "@seoexperiments/frontend-package",
+  "version": "0.1.0",
+  "description": "The frontend-package allows for easy access of your seoexperiment.io experiment cohort using JavaScript!",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "build": "npx babel index_source.js --out-file index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seoexperiments/frontend-package.git"
+  },
+  "keywords": [
+    "seoexperiments",
+    "frontend-package"
+  ],
+  "author": "seoexperiments",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seoexperiments/frontend-package/issues"
+  },
+  "homepage": "https://github.com/seoexperiments/frontend-package#readme",
+  "devDependencies": {
+    "@babel/core": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3"
+  },
+  "dependencies": {
+    "knex": "^0.20.8"
+  }
+}
