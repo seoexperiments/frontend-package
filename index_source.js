@@ -1,9 +1,9 @@
 import axios from 'axios'
 
 
-AWS_LAMBDA_URL_PATH = 'luoqll1mnc.execute-api.us-west-2.amazonaws.com/production/get-cohort-and-log'
+const AWS_LAMBDA_URL_PATH = 'luoqll1mnc.execute-api.us-west-2.amazonaws.com/production/get-cohort-and-log'
 
-class SEOExperiment {
+export default class SEOExperiment {
   constructor({
     experimentIdentifier
   }) {
@@ -19,8 +19,7 @@ class SEOExperiment {
 	`https://${AWS_LAMBDA_URL_PATH}?url=${pageURL}&referrer=${referrer}&experimentId=${this.experimentId}`
       )
       if (response.status === 200) {
-	const cohort = response.cohort
-	return cohort
+	return response.data.cohort
       } else {
 	console.log('seoexperiments.io lambda function unresponsive')
 	return null
