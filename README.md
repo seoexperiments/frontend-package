@@ -7,14 +7,7 @@
 ### Use case
 The frontend-package allows for easy access of your seoexperiment.io experiment cohort using JavaScript!
 
-The package will:
-  1. Make a call to seoexperiments servers 
-  2. Get the cohort that the current page being loaded is in 
-  3. Return that cohort to you
-
-
 ### Installation
-
 @seoexperiments/frontend-package is an npm package and can be installed in many different ways. The easiest though is through npm 
 
 ```sh
@@ -22,7 +15,11 @@ $ npm install @seoexperiments/frontend-package --save
 ```
 
 ### Usage
-Pull the package into the area of your codebase that has the logic you want to test. 
+Pull the package into the area of your codebase that has the logic you want to test. There are two ways of accessing your cohort:
+- getCohort: (async) Make a request to SEO Experiment servers and get the cohort
+- getCohortSync: (sync) Calculate the cohort locally
+
+**Example: getCohort (async)**
 The following example is a noindex experiment. The SEO Experiment will change the output of the function shouldPageBeNoindexed, as we want to noindex pages based upon the experiment cohort.
 ```js
 import SEOExperiment from '@seoexperiments/frontend-package'
@@ -35,6 +32,42 @@ export const shouldPageBeNoindexed = async () => {
         referrer: document.referrer,
         pageURL: window.location.href
     })
+    if (cohort === 'enabled') {
+        return true
+    }
+    return false
+}
+```
+**Example: getCohortSync**
+The following example is a noindex experiment. The SEO Experiment will change the output of the function shouldPageBeNoindexed, as we want to noindex pages based upon the experiment cohort.
+
+Because this function is synchronous, it does not contact seoexperiment servers to get the cohort. Instead it calculates the cohort on the client.
+```js
+import SEOExperiment from '@seoexperiments/frontend-package'
+
+export const shouldPageBeNoindexed = () => {
+    const experiment = new SEOExperiment({
+        experimentIdentifier: 29,
+        cohortAllocations: [
+          {
+            name: 'enabled',
+            allocation_percent: 50,
+            is_status_quo: true,
+          },
+          {
+            name: 'status_quo',
+            allocation_percent: 50,
+            is_status_quo: false,
+          },
+        ],
+        experimentName: 'performance_experiment',
+    })
+
+    const cohort = experiment.getCohortSync({
+        referrer: document.referrer,
+        pageURL: window.location.href,
+    })
+
     if (cohort === 'enabled') {
         return true
     }
