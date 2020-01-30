@@ -61,6 +61,7 @@ export const shouldPageBeNoindexed = () => {
           },
         ],
         experimentName: 'performance_experiment',
+	startDate: '2020-01-30',
     })
 
     const cohort = experiment.getCohortSync({
