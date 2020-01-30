@@ -5,7 +5,7 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.AWS_LAMBDA_LOG_COHORT_PATH = exports.AWS_LAMBDA_GET_COHORT_AND_LOG_URL_PATH = void 0;
+exports["default"] = exports.isExperimentActive = exports.TWO_WEEKS = exports.AWS_LAMBDA_LOG_COHORT_PATH = exports.AWS_LAMBDA_GET_COHORT_AND_LOG_URL_PATH = void 0;
 
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
@@ -26,27 +26,41 @@ exports.AWS_LAMBDA_GET_COHORT_AND_LOG_URL_PATH = AWS_LAMBDA_GET_COHORT_AND_LOG_U
 var AWS_LAMBDA_LOG_COHORT_PATH = 'luoqll1mnc.execute-api.us-west-2.amazonaws.com/production/log-cohort';
 exports.AWS_LAMBDA_LOG_COHORT_PATH = AWS_LAMBDA_LOG_COHORT_PATH;
 var SEO_EXPERIMENTS_SERVER_ERROR = 'seoexperiments.io lambda function unresponsive';
+var TWO_WEEKS = 1209600000;
+exports.TWO_WEEKS = TWO_WEEKS;
 
-var SEOExperiment = function SEOExperiment(_ref) {
+var isExperimentActive = function isExperimentActive(_ref) {
+  var startDateStr = _ref.startDateStr;
+  if (startDateStr === undefined) return false;
+  var activationDate = new Date(new Date(startDateStr).getTime() + TWO_WEEKS);
+  var disableDate = new Date(activationDate.getTime() + TWO_WEEKS); // current time is after activation date and before disable date
+
+  return Date.now() > activationDate.getTime() && Date.now() < disableDate.getTime();
+};
+
+exports.isExperimentActive = isExperimentActive;
+
+var SEOExperiment = function SEOExperiment(_ref2) {
   var _this = this;
 
-  var experimentIdentifier = _ref.experimentIdentifier,
-      cohortAllocations = _ref.cohortAllocations,
-      experimentName = _ref.experimentName,
-      urlFilter = _ref.urlFilter;
+  var experimentIdentifier = _ref2.experimentIdentifier,
+      cohortAllocations = _ref2.cohortAllocations,
+      experimentName = _ref2.experimentName,
+      urlFilter = _ref2.urlFilter,
+      startDate = _ref2.startDate;
   (0, _classCallCheck2["default"])(this, SEOExperiment);
   (0, _defineProperty2["default"])(this, "getCohort",
   /*#__PURE__*/
   function () {
-    var _ref3 = (0, _asyncToGenerator2["default"])(
+    var _ref4 = (0, _asyncToGenerator2["default"])(
     /*#__PURE__*/
-    _regenerator["default"].mark(function _callee(_ref2) {
+    _regenerator["default"].mark(function _callee(_ref3) {
       var referrer, pageURL, response;
       return _regenerator["default"].wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              referrer = _ref2.referrer, pageURL = _ref2.pageURL;
+              referrer = _ref3.referrer, pageURL = _ref3.pageURL;
               _context.prev = 1;
               _context.next = 4;
               return _axios["default"].get("https://".concat(AWS_LAMBDA_GET_COHORT_AND_LOG_URL_PATH, "?url=").concat(pageURL, "&referrer=").concat(referrer, "&experimentId=").concat(_this.experimentId));
@@ -83,12 +97,12 @@ var SEOExperiment = function SEOExperiment(_ref) {
     }));
 
     return function (_x) {
-      return _ref3.apply(this, arguments);
+      return _ref4.apply(this, arguments);
     };
   }());
-  (0, _defineProperty2["default"])(this, "getCohortSync", function (_ref4) {
-    var referrer = _ref4.referrer,
-        pageURL = _ref4.pageURL;
+  (0, _defineProperty2["default"])(this, "getCohortSync", function (_ref5) {
+    var referrer = _ref5.referrer,
+        pageURL = _ref5.pageURL;
     if (pageIsFilteredOut(pageURL, _this.urlFilter)) return null;
     var identifier = getIdentifierFromUrl(pageURL);
     var cohort = getBucketForExperiment(_this.cohortAllocations, pageURL, _this.experimentName); // non blocking
@@ -97,12 +111,16 @@ var SEOExperiment = function SEOExperiment(_ref) {
       _axios["default"].get("https://".concat(AWS_LAMBDA_LOG_COHORT_PATH, "?url=").concat(pageURL, "&referrer=").concat(referrer, "&experimentId=").concat(_this.experimentId, "&cohortName=").concat(cohort.name));
     } catch (_unused) {}
 
-    return cohort.name;
+    if (isExperimentActive({
+      startDateStr: _this.startDate
+    })) return cohort.name;
+    return null;
   });
   this.experimentId = experimentIdentifier;
   this.cohortAllocations = cohortAllocations;
   this.experimentName = experimentName;
   this.urlFilter = urlFilter;
+  this.startDate = startDate;
 };
 
 exports["default"] = SEOExperiment;
@@ -142,9 +160,9 @@ var getBucketForExperiment = function getBucketForExperiment(cohorts, url_identi
   }
 };
 
-var pageIsFilteredOut = function pageIsFilteredOut(_ref5) {
-  var url = _ref5.url,
-      urlFilter = _ref5.urlFilter;
+var pageIsFilteredOut = function pageIsFilteredOut(_ref6) {
+  var url = _ref6.url,
+      urlFilter = _ref6.urlFilter;
 
   /* find out if page EXCLUDED from the experiment population
    * returns true if the page should not be shown treatment

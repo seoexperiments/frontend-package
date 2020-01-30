@@ -6,6 +6,18 @@ import url from 'url'
 export const AWS_LAMBDA_GET_COHORT_AND_LOG_URL_PATH = 'luoqll1mnc.execute-api.us-west-2.amazonaws.com/production/get-cohort-and-log'
 export const AWS_LAMBDA_LOG_COHORT_PATH = 'luoqll1mnc.execute-api.us-west-2.amazonaws.com/production/log-cohort'
 const SEO_EXPERIMENTS_SERVER_ERROR = 'seoexperiments.io lambda function unresponsive'
+export const TWO_WEEKS = 1209600000
+
+
+export const isExperimentActive = ({startDateStr}) => {
+  if (startDateStr === undefined) return false
+  
+  const activationDate = new Date(new Date(startDateStr).getTime() + TWO_WEEKS)
+  const disableDate = new Date(activationDate.getTime() + TWO_WEEKS)
+  // current time is after activation date and before disable date
+  return Date.now() > activationDate.getTime() && Date.now() < disableDate.getTime()
+  
+}
 
 export default class SEOExperiment {
   constructor({
@@ -13,11 +25,13 @@ export default class SEOExperiment {
     cohortAllocations,
     experimentName,
     urlFilter,
+    startDate,
   }) {
     this.experimentId = experimentIdentifier
     this.cohortAllocations = cohortAllocations
     this.experimentName = experimentName
     this.urlFilter = urlFilter
+    this.startDate = startDate
   }
 
   getCohort = async ({
@@ -48,15 +62,16 @@ export default class SEOExperiment {
 
     const identifier = getIdentifierFromUrl(pageURL)
     const cohort = getBucketForExperiment(this.cohortAllocations, pageURL, this.experimentName)
+    const isActive = isExperimentActive({startDateStr: this.startDate})
 
     // non blocking
     try {
       axios.get(
-	`https://${AWS_LAMBDA_LOG_COHORT_PATH}?url=${pageURL}&referrer=${referrer}&experimentId=${this.experimentId}&cohortName=${cohort.name}`
+	`https://${AWS_LAMBDA_LOG_COHORT_PATH}?url=${pageURL}&referrer=${referrer}&experimentId=${this.experimentId}&cohortName=${cohort.name}&isActive=${isActive}`
       )
     } catch {}
-
-    return cohort.name
+    if (isActive) return cohort.name
+    return null
   }
 }
 
